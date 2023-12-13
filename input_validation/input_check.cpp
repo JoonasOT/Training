@@ -1,8 +1,8 @@
 #include "input_check.h"
 #include <sstream>
 
-inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
-{
+/* Strip string from the left */
+inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v") {
 	s.erase(0, s.find_first_not_of(t));
 	return s;
 }
@@ -84,8 +84,6 @@ std::optional<parse_result> Input::parse(const std::string& f, const std::string
 		case STRING:
 			res.push_back({ STRING, args.at(i) });
 			break;
-		default: /* WTF? */
-			break;
 		}
 	}
 
@@ -104,12 +102,12 @@ bool Input::is_float(const std::string& s) const {
 	return ss.eof() && !ss.fail();
 }
 
-bool Input::special_char_is_allowed(const char& c) const {
-	for (unsigned int i = 0; m_chars_allowed[i] != '\0'; i++) if (m_chars_allowed[i] == c) return true;
-	return false;
-}
-
 bool Input::is_string(const std::string& s) const {
 	for (const char& c : s) if (!(std::isalnum(c)) && !special_char_is_allowed(c)) return false;
 	return true;
+}
+
+bool Input::special_char_is_allowed(const char& c) const {
+	for (unsigned int i = 0; m_chars_allowed[i] != '\0'; i++) if (m_chars_allowed[i] == c) return true;
+	return false;
 }

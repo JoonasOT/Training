@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "input_check.h"
 
@@ -22,14 +23,11 @@ int main()
     auto x = in.parse("test", "1, 1.2, test");
     
     // Check for value
-    if (!x.has_value()) {
-        std::cout << "No value!\n";
-        return 1;
-    }
+    if (!x.has_value()) return 1;
 
     std::cout << "Calling print()\n";
     parse_result& r = x.value();
-    print(GET_INT(r, 0), GET_FLOAT(r, 1), GET_STRING(r, 2));
+    print(GET_<int>(r, 0), GET_<float>(r, 1), GET_<std::string>(r, 2));
 
     auto y = in.parse("test2", "string1, 2, 1, 15.02, 3, string2");
     r = y.value();
@@ -38,16 +36,15 @@ int main()
 
     std::cout << "---Custom out---\n";
     for (unsigned int i = 0; i < r.size(); i++) {
-        switch (r[i].first)
-        {
+        switch (GET_PARSE_TYPE(r, i)) {
         case INT:
-            std::cout << "(INT) -> " << GET_INT(r, i) << "\n";
+            std::cout << std::setw(12) << "(INT) -> "   << GET_<int>(r, i) << "\n";
             break;
         case FLOAT:
-            std::cout << "(FLOAT) -> " << GET_FLOAT(r, i) << "\n";
+            std::cout << std::setw(12) << "(FLOAT) -> " << GET_<float>(r, i) << "\n";
             break;
         case STRING:
-            std::cout << "(STRING) -> " << GET_STRING(r, i) << "\n";
+            std::cout << std::setw(12) << "(STRING) -> "<< GET_<std::string>(r, i) << "\n";
             break;
         }
     }
