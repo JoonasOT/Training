@@ -25,6 +25,7 @@ bool Input::delete_function(const std::string& s) {
 bool Input::check_valid(const std::string& f, const std::string& in) const {
 	if ( !m_functions.count(f) ) return false;
 
+	
 	std::vector<std::string> args;
 	{
 		std::string tmp;
@@ -32,6 +33,7 @@ bool Input::check_valid(const std::string& f, const std::string& in) const {
 		while (std::getline(ss, tmp, ',')) args.push_back(ltrim(tmp));
 	}
 	if ( m_functions.at(f).arguments.size() != args.size()) return false;
+
 
 	for (unsigned int i = 0; i < args.size(); i++ ) {
 		bool ok = false;
@@ -53,6 +55,41 @@ bool Input::check_valid(const std::string& f, const std::string& in) const {
 		if (!ok) return false;
 	}
 	return true;
+}
+
+std::optional<parse_result> Input::parse(const std::string& f, const std::string& in) const {
+	
+	if ( !check_valid(f, in) ) return {};
+
+	std::vector<std::string> args;
+	{
+		std::string tmp;
+		std::stringstream ss(in);
+		while (std::getline(ss, tmp, ',')) args.push_back(ltrim(tmp));
+	}
+
+	parse_result res;
+	res.reserve(args.size());
+
+	for (unsigned int i = 0; i < args.size(); i++) {
+
+		switch (m_functions.at(f).arguments.at(i))
+		{
+		case INT:
+			res.push_back({ INT, atoi(args.at(i).c_str()) });
+			break;
+		case FLOAT:
+			res.push_back({ FLOAT, std::stof(args.at(i)) });
+			break;
+		case STRING:
+			res.push_back({ STRING, args.at(i) });
+			break;
+		default: /* WTF? */
+			break;
+		}
+	}
+
+	return res;
 }
 
 bool Input::is_int(const std::string& s) const {
