@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="input_check.cpp" />
     <ClCompile Include="input_validation.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="input_check.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
