@@ -3,34 +3,11 @@ package com.github.JoonasOT.Training;
 import com.garmin.fit.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Workout {
-    private WorkoutHeader header;
-    private WorkoutMesg workoutDescription;
-    private ArrayList<WorkoutStepMesg> steps;
-    private Workout(WorkoutBuilder builder) {
-        header = builder.workoutHeader;
-        workoutDescription = builder.workoutDescription;
-        steps = WorkoutStepMesgFactory(builder.workoutSteps, builder.workoutRepeats);
-    }
-
-    private ArrayList<WorkoutStepMesg> WorkoutStepMesgFactory(ArrayList<WorkoutStep> steps,
-                                                              ArrayList<WorkoutRepeats> reps) {
-        Map<Integer, WorkoutRepeats> repeatLocations = reps.stream()
-                                                            .collect(Collectors.toMap(WorkoutRepeats::getEnd, i -> i));
-        ArrayList<WorkoutStepMesg> result = new ArrayList<>();
-        for(int i = 0; i < steps.size(); i++) {
-            result.add(steps.get(i).GetWorkoutStep());
-            if (repeatLocations.containsKey(i)) {
-                result.add(repeatLocations.get(i).CreateWorkoutStepRepeat());
-            }
-        }
-        return result;
-    }
-
     public static class WorkoutBuilder {
 
         // The workout requires a header and description
@@ -70,21 +47,74 @@ public class Workout {
         }
     }
 
-    public void createFile(String filename) {
+    // Each workout requires a header and a description
+    private WorkoutHeader header;
+    private WorkoutMesg description;
+
+    // All the different steps and repeats are stored in here
+    private ArrayList<WorkoutStepMesg> steps;
+
+
+    // Private constructor to force use of the builder
+    private Workout(WorkoutBuilder builder) {
+        header = builder.workoutHeader;
+        description = builder.workoutDescription;
+        steps = WorkoutStepMesgParse(builder.workoutSteps, builder.workoutRepeats);
+    }
+
+
+    private ArrayList<WorkoutStepMesg> WorkoutStepMesgParse(ArrayList<WorkoutStep> steps,
+                                                              ArrayList<WorkoutRepeats> reps) {
+        Map<Integer, WorkoutRepeats> repeatLocations = reps.stream()
+                                                            .collect(Collectors.toMap(WorkoutRepeats::getEnd, i -> i));
+        ArrayList<WorkoutStepMesg> result = new ArrayList<>();
+        for(int i : IntStream.range(0, steps.size()).toArray()) {
+            result.add(steps.get(i).GetWorkoutStep());
+            if (repeatLocations.containsKey(i)) {
+                result.add(repeatLocations.get(i).CreateWorkoutStepRepeat());
+            }
+        }
+        return result;
+    }
+
+    public boolean createFile(String filename) {
         FileEncoder encode;
 
         try {
             encode = new FileEncoder(new java.io.File(filename + ".fit"), Fit.ProtocolVersion.V1_0);
         } catch (FitRuntimeException e) {
-            System.err.println("Error opening file " + filename);
+            System.err.println("Error opening file " + filename + ".fit");
             e.printStackTrace();
-            return;
+            return false;
         }
 
         // Write the messages to the file, in the proper sequence
         encode.write(header.getHeader());
-        encode.write(workoutDescription);
+        encode.write(description);
 
+        for (WorkoutStepMesg step : steps) {
+            encode.write(step);
+        }
 
+        // Close the output stream
+        try {
+            encode.close();
+        } catch (FitRuntimeException e) {
+            System.err.println("Error closing encode.");
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public ArrayList<WorkoutStepMesg> getSteps() {
+        return steps;
+    }
+
+    public WorkoutHeader getHeader() {
+        return header;
+    }
+
+    public WorkoutMesg getDescription() {
+        return description;
     }
 }
