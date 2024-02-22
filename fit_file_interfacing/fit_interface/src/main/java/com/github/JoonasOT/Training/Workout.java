@@ -81,9 +81,9 @@ public class Workout {
         FileEncoder encode;
 
         try {
-            encode = new FileEncoder(new java.io.File(filename + ".fit"), Fit.ProtocolVersion.V1_0);
+            encode = new FileEncoder(new java.io.File(filename), Fit.ProtocolVersion.V1_0);
         } catch (FitRuntimeException e) {
-            System.err.println("Error opening file " + filename + ".fit");
+            System.err.println("Error opening file " + filename);
             e.printStackTrace();
             return false;
         }
