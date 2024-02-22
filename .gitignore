@@ -6,6 +6,10 @@
 # IntelliJ
 .idea
 
+# Data
+*.csv
+*.fit
+
 # Compiled class file
 *.class
 
