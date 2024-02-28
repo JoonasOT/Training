@@ -7,3 +7,5 @@ Currently mapping out the project. Will clean the repo when implemented most of 
 [**goal #1**] Working console core app  
 [**goal #2**] Ui with ImGUI  
 [**goal #3**] Creating own workouts for Garmin with .fit sdk
+
+After these goals I will integrate goals 1,2 & 3 together into a working application.
